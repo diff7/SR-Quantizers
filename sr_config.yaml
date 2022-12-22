@@ -1,0 +1,43 @@
+dataset:
+  scale: 4 
+  train_sample: 1 # Search is too slow. search is too slow. Therefore we use only part of the data.
+  batch_size: 16
+  crop_size: 45 # small image,  40x4=160, pathces are 200x200
+  files_list:  /home/dev/data_main/SR/DIV2K/processed_200_st70/HR
+  debug_mode: False # run on a small porion of data
+  
+arch:
+  bits: [32] #bitwidth options
+  
+
+env:
+  run_name: 'DEBUG' # name of the experiment. Ignored when 'batch_exp.py' is used.
+  gpu: 1 # Device. Ignored when 'batch_exp.py' is used. 
+  log_dir: /home/dev/data_main/LOGS/NEW_QUANT/ # Directory for experiments output.
+  im_dir: 'arch_images' # Subfolder of the experiment in which images of architectures are saved.
+  workers: 4 
+  seed : 777 
+  print_freq: 10 # print frequency
+ 
+train:
+  # From what epoch to start alpha updates
+  warm_up: 0 
+  # Path to pretrained SUPERNET.
+  load_path: #/home/dev/data_main/LOGS/SR/SEARCH_gumbel_checkpoint-2022-01-31-21/best.pth.tar
+  
+  penalty: 1 # Flops penalty. Ignored when 'batch_exp.py' is used.
+  alpha_selector: softmax # Alpha transformation. 'softmax' recommended. 
+  sparse_coef: 1e-3 # Coefficient. Recommend: 0.001 for entropy, 0.0001 for l1.
+  optimizer: adam # Weights optimizer. Options: 'sgd', 'adam'
+
+  lr_scheduler: cosine # Lr scheduler for weights. 
+  w_lr: 1e-3 # lr for weights
+  w_momentum: 0.9 # Momentum for weights('sgd' only)
+  w_weight_decay: 3e-7 # Weight decay for weights
+  w_grad_clip: 5 # gradient clipping for weights
+  epochs: 100 # number of search epochs
+  alpha_lr:  3e-4 # lr for alpha
+  alpha_weight_decay: 0 #1e-3 #weight decay for alpha
+  temp_max: 10 # Only valid for alpha_selector=='gumbel'. 
+  temp_min: 0.1 # Same as above
+  
