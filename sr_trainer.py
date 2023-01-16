@@ -22,7 +22,7 @@ def train_setup(cfg, mode="train"):
     # INIT FOLDERS & cfg
 
     cfg.env.save_path = utils.get_run_path(
-        cfg.env.log_dir, "{{mode}}" + cfg.env.run_name
+        cfg.env.log_dir, f"{mode}" + cfg.env.run_name
     )
     utils.save_scripts(cfg.env.save_path)
     log_handler = utils.LogHandler(cfg.env.save_path + "/log.txt")
@@ -40,7 +40,7 @@ def train_setup(cfg, mode="train"):
 
     writer.add_hparams(
         hparam_dict={str(k): str(cfg[k]) for k in cfg},
-        metric_dict={"{mode}/train/loss": 0},
+        metric_dict={f"{mode}/train/loss": 0},
     )
 
     omg.save(cfg, os.path.join(cfg.env.save_path, "config.yaml"))
@@ -184,8 +184,8 @@ def run_train(
         if best_score > score_val:
             best_score = score_val
             best_flops = best_current_flops
-            writer.add_scalar("{mode}/best_val", best_score, epoch)
-            writer.add_scalar("{mode}/best_flops", best_flops, epoch)
+            writer.add_scalar(f"{mode}/best_val", best_score, epoch)
+            writer.add_scalar(f"{mode}/best_flops", best_flops, epoch)
 
             is_best = True
 
@@ -290,9 +290,9 @@ def train(
         if step % 2 != 0:
             writer.add_scalar("{mode}/train/loss", loss_w, cur_step)
 
-        writer.add_scalar("{mode}/train/flops_loss", flops, cur_step)
-        writer.add_scalar("{mode}/train/weighted_flops", flops, cur_step)
-        writer.add_scalar("{mode}/train/weighted_memory", mem, cur_step)
+        writer.add_scalar(f"{mode}/train/flops_loss", flops, cur_step)
+        writer.add_scalar(f"{mode}/train/weighted_flops", flops, cur_step)
+        writer.add_scalar(f"{mode}/train/weighted_memory", mem, cur_step)
 
         cur_step += 1
 

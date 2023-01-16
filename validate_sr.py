@@ -5,9 +5,8 @@ from omegaconf import OmegaConf as omg
 import utils
 from datasets import ValidationSet
 import pandas as pd
-
-
 from QSB.tools import get_flops_and_memory
+
 
 def run_val(model, cfg_val, save_dir, device):
     # set default gpu device id
@@ -24,9 +23,13 @@ def run_val(model, cfg_val, save_dir, device):
     )
 
     ssim, score_val = validate(val_loader, model, device, save_dir)
-    
-    flops_32, mem = get_flops_and_memory(model, input_size=[1, 3, 32, 32], device=device)
-    flops_256, mem = get_flops_and_memory(model, input_size=[1, 3, 256, 256], device=device)
+
+    flops_32, mem = get_flops_and_memory(
+        model, input_size=[1, 3, 32, 32], device=device
+    )
+    flops_256, mem = get_flops_and_memory(
+        model, input_size=[1, 3, 256, 256], device=device
+    )
 
     mb_params = utils.param_size(model)
     return ssim, score_val, flops_32, flops_256, mb_params
@@ -69,7 +72,9 @@ def validate(valid_loader, model, device, save_dir):
 
 
 def dataset_loop(valid_cfg, model, logger, save_dir, device):
-    df = pd.DataFrame(columns=["Model size", "BitOps(32x32)", "BitOps(256x256)", "PSNR", "SSIM"])
+    df = pd.DataFrame(
+        columns=["Model size", "BitOps(32x32)", "BitOps(256x256)", "PSNR", "SSIM"]
+    )
     for dataset in valid_cfg:
         os.makedirs(os.path.join(save_dir, str(dataset)), exist_ok=True)
         ssim, score_val, flops_32, flops_256, mb_params = run_val(
@@ -84,17 +89,20 @@ def dataset_loop(valid_cfg, model, logger, save_dir, device):
         logger.info("BitOps = {:.2e} operations 256x256".format(flops_256))
         logger.info("PSNR = {:.3f}%".format(score_val))
         logger.info("SSIM = {:.3f}%".format(ssim))
-        
+
         df.loc[str(dataset)] = [mb_params, flops_32, flops_256, score_val, ssim]
     df.to_csv(os.path.join(save_dir, "..", "validation_df.csv"))
 
 
 if __name__ == "__main__":
+
+    # ! IMPORTANT NON WORKING PART - REQUIERS refactoring
+
     CFG_PATH = "./sr_models/valsets4x.yaml"
     valid_cfg = omg.load(CFG_PATH)
     run_name = "TEST_2"
     genotype_path = "/home/dev/2021_09/QuanToaster/genotype_example_sr.gen"
-    weights_path = None #"/home/dev/data_main/LOGS/SR/11_2022/TUNE/Basic_With_ESA-2022-11-22-13/best.pth.tar"
+    weights_path = None  # "/home/dev/data_main/LOGS/SR/11_2022/TUNE/Basic_With_ESA-2022-11-22-13/best.pth.tar"
     log_dir = "/home/dev/data_main/LOGS/SR/11_2022/TUNE/"
     save_dir = os.path.join(log_dir, run_name)
     os.makedirs(save_dir, exist_ok=True)
@@ -107,7 +115,7 @@ if __name__ == "__main__":
 
     logger = utils.get_logger(save_dir + "/validation_log.txt")
     logger.info(genotype)
-    
+
     # model = RFDN()
     # model.to(device)
 
@@ -119,7 +127,7 @@ if __name__ == "__main__":
         channels=3,
         scale=4,
         body_cells=3,
-        skip_mode=True
+        skip_mode=True,
     )
     # print(count_Flops(model))
     dataset_loop(valid_cfg, model, logger, save_dir, device)

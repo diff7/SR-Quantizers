@@ -13,7 +13,7 @@ arch:
 env:
   run_name: 'DEBUG' # name of the experiment. Ignored when 'batch_exp.py' is used.
   gpu: 1 # Device. Ignored when 'batch_exp.py' is used. 
-  log_dir: /home/dev/data_main/LOGS/NEW_QUANT/ # Directory for experiments output.
+  log_dir: /home/dev/data_main/LOGS/QUANT_NEW/ # Directory for experiments output.
   im_dir: 'arch_images' # Subfolder of the experiment in which images of architectures are saved.
   workers: 4 
   seed : 777 
@@ -25,7 +25,7 @@ train:
   # Path to pretrained SUPERNET.
   load_path: #/home/dev/data_main/LOGS/SR/SEARCH_gumbel_checkpoint-2022-01-31-21/best.pth.tar
   
-  penalty: 1 # Flops penalty. Ignored when 'batch_exp.py' is used.
+  penalty: 0.1 # Flops penalty. Ignored when 'batch_exp.py' is used.
   alpha_selector: softmax # Alpha transformation. 'softmax' recommended. 
   sparse_coef: 1e-3 # Coefficient. Recommend: 0.001 for entropy, 0.0001 for l1.
   optimizer: adam # Weights optimizer. Options: 'sgd', 'adam'

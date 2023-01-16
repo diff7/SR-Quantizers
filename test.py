@@ -10,7 +10,7 @@ from QSB.tools import (
 from models.IMDN.architecture import IMDN
 
 qconfig = QConfig()
-model = IMDN() 
+model = IMDN()
 
 input_x = torch.randn(10, 3, 28, 28)
 model(input_x)
@@ -18,9 +18,8 @@ model(input_x)
 replace_modules(model, qconfig, verbose=True)
 print(model)
 model(input_x)
-model, main_params, alpha_params, alpha_names = prepare_and_get_params(
-    model,qconfig
-)
+model, main_params, alpha_params, alpha_names = prepare_and_get_params(model, qconfig)
+
 print("FLOPS:")
 print(get_flops_and_memory(model))
 set_signle(model)
