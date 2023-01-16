@@ -32,7 +32,7 @@ def run_val(model, cfg_val, save_dir, device):
     )
 
     mb_params = utils.param_size(model)
-    return ssim, score_val, flops_32, flops_256, mb_params
+    return ssim, score_val, flops_32.detach().cpu(), flops_256.detach().cpu(), mb_params
 
 
 def validate(valid_loader, model, device, save_dir):

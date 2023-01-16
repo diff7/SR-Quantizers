@@ -22,7 +22,7 @@ def train_setup(cfg, mode="train"):
     # INIT FOLDERS & cfg
 
     cfg.env.save_path = utils.get_run_path(
-        cfg.env.log_dir, f"{mode}" + cfg.env.run_name
+        cfg.env.log_dir, f"{mode}_" + cfg.env.run_name
     )
     utils.save_scripts(cfg.env.save_path)
     log_handler = utils.LogHandler(cfg.env.save_path + "/log.txt")
@@ -283,7 +283,7 @@ def train(
                     len(train_loader) - 1,
                     losses=loss_meter,
                     flops=flops,
-                    f_loss=f_loss,
+                    f_loss=f_loss if search  else 0,
                 )
             )
 
