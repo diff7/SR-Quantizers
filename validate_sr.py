@@ -1,10 +1,9 @@
 import os
 import torch
 import random
-from omegaconf import OmegaConf as omg
 import utils
-from datasets import ValidationSet
 import pandas as pd
+from datasets import ValidationSet
 from QSB.tools import get_flops_and_memory
 
 
@@ -32,7 +31,22 @@ def run_val(model, cfg_val, save_dir, device):
     )
 
     mb_params = utils.param_size(model)
-    return ssim, score_val, flops_32.detach().cpu(), flops_256.detach().cpu(), mb_params
+
+    # during search pahse flops are multipleid by alpha which is differentiable tensor
+
+    if not isinstance(flops_32, float):
+        flops_32 = flops_32.detach().cpu()
+
+    if not isinstance(flops_256, float):
+        flops_256 = flops_256.detach().cpu()
+
+    return (
+        ssim,
+        score_val,
+        flops_32,
+        flops_256,
+        mb_params,
+    )
 
 
 def validate(valid_loader, model, device, save_dir):
@@ -72,8 +86,16 @@ def validate(valid_loader, model, device, save_dir):
 
 
 def dataset_loop(valid_cfg, model, logger, save_dir, device):
+    model.to(device)
+
     df = pd.DataFrame(
-        columns=["Model size", "BitOps(32x32)", "BitOps(256x256)", "PSNR", "SSIM"]
+        columns=[
+            "Model size",
+            "BitOps(32x32)",
+            "BitOps(256x256)",
+            "PSNR",
+            "SSIM",
+        ]
     )
     for dataset in valid_cfg:
         os.makedirs(os.path.join(save_dir, str(dataset)), exist_ok=True)
@@ -96,38 +118,5 @@ def dataset_loop(valid_cfg, model, logger, save_dir, device):
 
 if __name__ == "__main__":
 
-    # ! IMPORTANT NON WORKING PART - REQUIERS refactoring
-
-    CFG_PATH = "./sr_models/valsets4x.yaml"
-    valid_cfg = omg.load(CFG_PATH)
-    run_name = "TEST_2"
-    genotype_path = "/home/dev/2021_09/QuanToaster/genotype_example_sr.gen"
-    weights_path = None  # "/home/dev/data_main/LOGS/SR/11_2022/TUNE/Basic_With_ESA-2022-11-22-13/best.pth.tar"
-    log_dir = "/home/dev/data_main/LOGS/SR/11_2022/TUNE/"
-    save_dir = os.path.join(log_dir, run_name)
-    os.makedirs(save_dir, exist_ok=True)
-    channels = 3
-    repeat_factor = 16
-    device = 1
-
-    with open(genotype_path, "r") as f:
-        genotype = from_str(f.read())
-
-    logger = utils.get_logger(save_dir + "/validation_log.txt")
-    logger.info(genotype)
-
-    # model = RFDN()
-    # model.to(device)
-
-    model = get_model(
-        weights_path,
-        device,
-        genotype,
-        c_fixed=36,
-        channels=3,
-        scale=4,
-        body_cells=3,
-        skip_mode=True,
-    )
-    # print(count_Flops(model))
-    dataset_loop(valid_cfg, model, logger, save_dir, device)
+    # RUN TESTS HERE
+    pass

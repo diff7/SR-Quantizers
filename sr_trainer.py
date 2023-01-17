@@ -14,7 +14,7 @@ from omegaconf import OmegaConf as omg
 
 
 from QSB.qconfig import QConfig
-from QSB.tools import get_flops_and_memory
+from QSB.tools import get_flops_and_memory, get_named_arch
 
 
 def train_setup(cfg, mode="train"):
@@ -142,8 +142,20 @@ def run_train(
 
         if search:
             alpha_string = []
-            for a, n in zip(alphas, alphas_names):
-                alpha_string.append(f"{n} alpha: {a}")
+            bits, alphas_dict = get_named_arch(model)
+            for n, v in alphas_dict.items():
+                alpha_string.append(f"{n} {v}\n")
+                dict(zip(range(len(v)), v.detach().cpu().numpy().tolist()))
+                writer.add_scalars(
+                    f"{mode}/alphas/{str(n)}",
+                    dict(
+                        zip(
+                            [str(i) for i in range(len(v))],
+                            v.detach().cpu().numpy().tolist(),
+                        )
+                    ),
+                    epoch,
+                )
 
             logger.info("\n".join(alpha_string))
 
@@ -283,7 +295,7 @@ def train(
                     len(train_loader) - 1,
                     losses=loss_meter,
                     flops=flops,
-                    f_loss=f_loss if search  else 0,
+                    f_loss=f_loss if search else 0,
                 )
             )
 
