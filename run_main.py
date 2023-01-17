@@ -17,8 +17,22 @@ from validate_sr import dataset_loop
 from models.IMDN.architecture import IMDN
 from models.ESCPCN.model import espcn_x4 as Net
 
+# TODO
 
-# (1) PROBLEM activation functions quantization / double usage !!
+# IMDN FP32
+# RFDN FP32
+# ESPCN FP32
+
+# IMDN MPQ
+# RFDN MPQ
+# ESPCN MPQ
+
+# IMDN MPQ Noise
+# RFDN MPQ Noise
+# ESPCN MPQ Noise
+
+# Quant to FP32
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument(

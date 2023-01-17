@@ -300,7 +300,7 @@ def train(
             )
 
         if step % 2 != 0:
-            writer.add_scalar("{mode}/train/loss", loss_w, cur_step)
+            writer.add_scalar(f"{mode}/train/loss", loss_w, cur_step)
 
         writer.add_scalar(f"{mode}/train/flops_loss", flops, cur_step)
         writer.add_scalar(f"{mode}/train/weighted_flops", flops, cur_step)
